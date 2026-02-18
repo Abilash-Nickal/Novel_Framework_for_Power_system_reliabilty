@@ -1,0 +1,127 @@
+Plant name,Unit Capacity (MW),Unit FOR,MTTR (hours),MTTF (hours),Unit Cost (LKR/kWh)
+Canyon,30,0.01,40,3960,3.76
+Canyon,30,0.01,40,3960,3.76
+Wimalasurendra,25,0.01,40,3960,3.76
+Wimalasurendra,25,0.01,40,3960,3.76
+Old Laxapana,9,0.01,40,3960,3.76
+Old Laxapana,9,0.01,40,3960,3.76
+Old Laxapana,9,0.01,40,3960,3.76
+Old Laxapana,12,0.01,40,3960,3.76
+Old Laxapana,12,0.01,40,3960,3.76
+New Laxapana,50,0.01,40,3960,3.76
+New Laxapana,50,0.01,40,3960,3.76
+Polpitiya,45,0.01,40,3960,3.76
+Polpitiya,45,0.01,40,3960,3.76
+Broadlands,17.5,0.01,40,3960,12
+Broadlands,17.5,0.01,40,3960,12
+Upper Kotmale,75,0.01,60,5940,4
+Upper Kotmale,75,0.01,60,5940,4
+Victoria,70,0.01,70,6930,4.81
+Victoria,70,0.01,70,6930,4.81
+Victoria,70,0.01,70,6930,4.81
+Kotmale,67,0.01,50,4950,4.81
+Kotmale,67,0.01,50,4950,4.81
+Kotmale,67,0.01,50,4950,4.81
+Randenigala,60,0.01,60,5940,4.81
+Randenigala,60,0.01,60,5940,4.81
+Ukuwela,19.3,0.01,50,4950,4.81
+Ukuwela,19.3,0.01,50,4950,4.81
+Bowatenna,40,0.01,50,4950,4.81
+Rantambe,25,0.01,50,4950,4.81
+Rantambe,25,0.01,50,4950,4.81
+Rantambe,25,0.01,50,4950,4.81
+Nilambe,1.61,0.01,50,4950,4.81
+Nilambe,1.61,0.01,50,4950,4.81
+Samanalawewa,60,0.01,60,5940,4.81
+Samanalawewa,60,0.01,60,5940,4.81
+Uma Oya,61,0.01,70,6930,4.81
+Uma Oya,61,0.01,70,6930,4.81
+Kukule,37.5,0.01,60,5940,4.81
+Kukule,37.5,0.01,60,5940,4.81
+Udawalawa,2,0.01,50,4950,4.81
+Udawalawa,2,0.01,50,4950,4.81
+Udawalawa,2,0.01,50,4950,4.81
+Inginiyagala,2.475,0.01,50,4950,4.81
+Inginiyagala,2.475,0.01,50,4950,4.81
+Inginiyagala,3.15,0.01,50,4950,4.81
+Inginiyagala,3.15,0.01,50,4950,4.81
+Lakvijaya CPP,300,0.08,100,1150,17.51
+Lakvijaya CPP,300,0.08,100,1150,17.51
+Lakvijaya CPP,300,0.08,100,1150,17.51
+Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+Gas Turbine (GT 7),115,0.068,50,734.2941176,76.71
+Combined Cycle-1,165,0.08,50,624,97.97
+Combined Cycle-2,163,0.08,50,624,52.53
+Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+Uthuru Janani,8.9,0.075,40,532.3333333,54.46
+Uthuru Janani,8.9,0.075,40,532.3333333,54.46
+Uthuru Janani,8.9,0.075,40,532.3333333,54.46
+Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+Dankunujanani & Mathugama DPS,50,0.002,50,2499,64.43

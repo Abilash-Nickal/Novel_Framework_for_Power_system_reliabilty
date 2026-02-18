@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSMCS Reliability Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Optional custom styles for Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div id="app" class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-6 sm:p-10">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Power System Reliability Analysis</h1>
+        <p class="text-sm text-gray-500 mb-6">Non-Sequential Monte Carlo Simulation (NSMCS)</p>
+
+        <!-- Configuration -->
+        <div id="config-inputs" class="mb-8 p-4 bg-gray-50 rounded-lg shadow-inner">
+            <h2 class="text-xl font-semibold text-gray-700 mb-3">Simulation Settings</h2>
+            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+                <div class="flex-1">
+                    <label for="iterations" class="block text-sm font-medium text-gray-600">Iterations (N)</label>
+                    <input type="number" id="iterations" value="1000000" min="10000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div class="flex-1">
+                    <label for="for_multiplier" class="block text-sm font-medium text-gray-600">FOR Multiplier (Scenario)</label>
+                    <input type="number" step="0.01" id="for_multiplier" value="1.0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                    <p class="text-xs text-gray-400 mt-1">e.g., 1.1 = 10% increase in FOR</p>
+                </div>
+            </div>
+            <button onclick="runSimulation()" class="w-full mt-5 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150">
+                Run Simulation
+            </button>
+        </div>
+
+        <!-- Results Display -->
+        <div id="results-display" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- Result Card 1: LOLP -->
+            <div class="bg-blue-50 p-6 rounded-lg shadow-lg border-b-4 border-blue-600">
+                <p class="text-sm font-medium text-blue-600">Loss of Load Probability (LOLP)</p>
+                <p id="lolp-result" class="text-3xl font-extrabold text-gray-900 mt-1">--</p>
+                <p class="text-xs text-gray-500 mt-2">Probability of failure at any moment.</p>
+            </div>
+
+            <!-- Result Card 2: LOLE -->
+            <div class="bg-red-50 p-6 rounded-lg shadow-lg border-b-4 border-red-600">
+                <p class="text-sm font-medium text-red-600">LOLE (Expected Failure)</p>
+                <p id="lole-result" class="text-3xl font-extrabold text-gray-900 mt-1">--</p>
+                <p class="text-xs text-gray-500 mt-2">Expected failure hours per year.</p>
+            </div>
+
+            <!-- Result Card 3: Total Capacity -->
+            <div class="bg-green-50 p-6 rounded-lg shadow-lg border-b-4 border-green-600">
+                <p class="text-sm font-medium text-green-600">Total Installed Capacity</p>
+                <p id="capacity-result" class="text-3xl font-extrabold text-gray-900 mt-1">-- MW</p>
+                <p class="text-xs text-gray-500 mt-2">Total power available if all are UP.</p>
+            </div>
+
+        </div>
+
+        <div id="messages" class="mt-8 p-4 text-sm bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 hidden"></div>
+        <div id="debug-info" class="mt-4 text-xs text-gray-400"></div>
+
+    </div>
+
+    <script>
+        // --- Dummy Data Setup (NOTE: This must be updated with your 126 generators and 8760 load points) ---
+
+        const HOURS_PER_YEAR = 8760;
+
+        // Replace with your 126 units [Capacity, MTTF, MTTR]
+        const GENERATOR_DATA = [
+            [100, 4380, 44.24],
+            [200, 2190, 44.69],
+            [300, 1500, 70.0],
+            [150, 3000, 50.0],
+            [80, 5000, 30.0],
+            [120, 3500, 40.0],
+            [90, 4000, 35.0],
+            [250, 2000, 60.0]
+        ];
+
+        // Replace with your actual 8760 load profile. For this demonstration, we use a small array.
+        const ANNUAL_LOAD_PROFILE = [
+            250, 200, 150, 150, 400, 550, 600, 650, 700, 680, 500, 400, 300,
+            280, 350, 450, 550, 680, 750, 720, 650, 550, 450, 350
+        ];
+
+        // --- Reliability Calculation Functions ---
+
+        /**
+         * Calculates the Forced Outage Rate (FOR) from MTTR and MTTF.
+         * FOR = MTTR / (MTTR + MTTF)
+         */
+        function calculateFOR(mttr, mttf) {
+            if (mttf + mttr === 0) return 1.0;
+            let for_val = mttr / (mttf + mttr);
+            return Math.min(1.0, Math.max(0.0, for_val));
+        }
+
+        /**
+         * Runs the Non-Sequential Monte Carlo Simulation.
+         */
+        function runSimulation() {
+            const iterations = parseInt(document.getElementById('iterations').value) || 1000000;
+            const forMultiplier = parseFloat(document.getElementById('for_multiplier').value) || 1.0;
+
+            const msgEl = document.getElementById('messages');
+            msgEl.classList.add('hidden');
+            msgEl.textContent = '';
+
+            if (GENERATOR_DATA.length === 0 || ANNUAL_LOAD_PROFILE.length === 0) {
+                msgEl.textContent = 'Error: Generator or Load data is missing.';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+
+            // Limit iterations to prevent the browser from freezing (e.g., max 5 million in JS)
+            const actualIterations = Math.min(iterations, 5000000);
+
+            let H = 0;
+            let N = 0;
+            let totalGenCapacity = 0;
+
+            // --- Preparation ---
+            const Gen_np = [];
+            const FOR_np = [];
+
+            GENERATOR_DATA.forEach(data => {
+                const capacity = data[0];
+                const mttf = data[1];
+                const mttr = data[2];
+
+                let baseFOR = calculateFOR(mttr, mttf);
+
+                // Apply scenario multiplier and cap at 1.0
+                let scenarioFOR = Math.min(1.0, baseFOR * forMultiplier);
+
+                Gen_np.push(capacity);
+                FOR_np.push(scenarioFOR);
+                totalGenCapacity += capacity;
+            });
+
+            // Display total capacity
+            document.getElementById('capacity-result').textContent = `${totalGenCapacity.toFixed(0)} MW`;
+
+            // --- Simulation Loop ---
+            const num_generators = Gen_np.length;
+            const num_load_hours = ANNUAL_LOAD_PROFILE.length;
+
+            for (let n = 0; n < actualIterations; n++) {
+                N++;
+                let availableGen = 0;
+
+                // A. Check Generator Availability (NSMCS Logic)
+                for (let i = 0; i < num_generators; i++) {
+                    if (Math.random() > FOR_np[i]) {
+                        availableGen += Gen_np[i];
+                    }
+                }
+
+                // B. Select Current Load (Random Sampling)
+                const loadIndex = Math.floor(Math.random() * num_load_hours);
+                const currentLoad = ANNUAL_LOAD_PROFILE[loadIndex];
+
+                // C. Check for Loss of Load
+                if (currentLoad > availableGen) {
+                    H++;
+                }
+            }
+
+            // --- Results ---
+            const LOLP = H / N;
+            const LOLE = LOLP * HOURS_PER_YEAR;
+
+            // Update GUI
+            document.getElementById('lolp-result').textContent = LOLP.toExponential(4);
+            document.getElementById('lole-result').textContent = `${LOLE.toFixed(3)} hrs/yr`;
+            document.getElementById('debug-info').textContent = `Total Capacity: ${totalGenCapacity.toFixed(0)} MW | Iterations: ${N.toLocaleString()}`;
+
+            msgEl.textContent = `Simulation run complete. Results based on ${N.toLocaleString()} iterations.`;
+            msgEl.classList.remove('hidden');
+            msgEl.classList.replace('bg-yellow-100', 'bg-green-100');
+            msgEl.classList.replace('border-yellow-500', 'border-green-500');
+            msgEl.classList.replace('text-yellow-700', 'text-green-700');
+        }
+
+        // Run automatically on load for demonstration
+        window.onload = runSimulation;
+
+    </script>
+</body>
+</html>

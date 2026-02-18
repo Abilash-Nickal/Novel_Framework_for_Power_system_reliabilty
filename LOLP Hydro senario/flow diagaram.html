@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMCS Logic Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .flow-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .node {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .node:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .connector {
+            width: 3px;
+            height: 1.5rem;
+            background: #cbd5e1;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .connector::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #cbd5e1;
+        }
+
+        .decision {
+            background: #fffbeb;
+            border: 2px solid var(--warning);
+            border-radius: 1rem;
+            transform: rotate(0deg); /* Keeping it readable instead of a diamond on mobile */
+        }
+
+        .loop-line {
+            position: absolute;
+            top: 310px;
+            right: -40px;
+            bottom: 120px;
+            width: 60px;
+            border: 3px dashed var(--secondary);
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+            z-index: 1;
+        }
+
+        .loop-label {
+            position: absolute;
+            right: -100px;
+            top: 50%;
+            transform: rotate(90deg);
+            color: var(--secondary);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-init { background: #dcfce7; color: #166534; }
+        .badge-loop { background: #dbeafe; color: #1e40af; }
+        .badge-calc { background: #fef3c7; color: #92400e; }
+        .badge-result { background: #f3e8ff; color: #6b21a8; }
+
+        @media (max-width: 768px) {
+            .loop-line { display: none; }
+        }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+
+    <div class="max-w-3xl mx-auto text-center mb-10">
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Sequential Monte Carlo Logic</h1>
+        <p class="text-slate-600 italic">Chronological Reliability Simulation for Power Systems</p>
+    </div>
+
+    <div class="flow-grid">
+
+        <!-- Step 1 -->
+        <div class="node">
+            <span class="badge badge-init">Step 1: Setup</span>
+            <h3 class="font-bold text-lg text-blue-700">Initialize Environment</h3>
+            <p class="text-sm text-slate-600 mt-1">
+                Load <b>Generator Data</b> (Capacity, MTTF, MTTR) and the <b>8,760h Load Curve</b>.
+                Generate monthly hydro capacity caps lookup.
+            </p>
+        </div>
+
+        <div class="connector"></div>
+
+        <!-- Step 2 -->
+        <div class="node">
+            <span class="badge badge-init">Step 2: Start State</span>
+            <h3 class="font-bold text-lg text-blue-700">Initial Sampling</h3>
+            <p class="text-sm text-slate-600 mt-1">
+                Set all units to <b>UP (State 0)</b>. For each unit, sample the first time-to-failure (TTF) using:
+                <code class="block bg-slate-100 p-2 mt-2 rounded">T = -MTTF * ln(rand)</code>
+            </p>
+        </div>
+
+        <div class="connector"></div>
+
+        <!-- Step 3: Decision (Loop Entry) -->
+        <div class="node decision">
+            <span class="badge badge-loop">Loop Guard</span>
+            <h3 class="font-bold text-lg text-amber-700 italic">Simulation Loop</h3>
+            <p class="text-sm text-slate-700 mt-1">
+                Continue while <br><span class="font-mono font-bold">current_time < total_study_hours</span>
+            </p>
+        </div>
+
+        <div class="connector"></div>
+
+        <!-- Step 4 -->
+        <div class="node">
+            <span class="badge badge-calc">Step 3: Supply/Demand</span>
+            <h3 class="font-bold text-lg text-slate-800">Capacity Assessment</h3>
+            <ul class="text-sm text-slate-600 mt-1 list-disc ml-4 space-y-1">
+                <li><b>Thermal:</b> Sum capacities of all units in State 0.</li>
+                <li><b>Hydro:</b> Sum UP units, then apply <b>Monthly Cap</b>.</li>
+                <li><b>Load:</b> Fetch demand for <code>current_time % 8760</code>.</li>
+            </ul>
+        </div>
+
+        <div class="connector"></div>
+
+        <!-- Step 5 -->
+        <div class="node border-l-4 border-l-red-500">
+            <span class="badge badge-calc">Step 4: Reliability Logic</span>
+            <h3 class="font-bold text-lg text-slate-800">Loss of Load Check</h3>
+            <p class="text-sm text-slate-600 mt-1">
+                If <span class="text-red-600 font-bold">Supply < Demand</span>: <br>
+                Increment <code>total_LOL_hours</code> by the <code>time_step</code>.
+            </p>
+        </div>
+
+        <div class="connector"></div>
+
+        <!-- Step 6 -->
+        <div class="node">
+            <span class="badge badge-calc">Step 5: Event Advancement</span>
+            <h3 class="font-bold text-lg text-slate-800">Dynamic Time Step</h3>
+            <p class="text-sm text-slate-600 mt-1">
+                Advance clock by <code>step = min(1.0, min_time_to_event)</code>.<br>
+                Decrement all unit event timers by <code>step</code>.
+            </p>
+        </div>
+
+        <div class="connector"></div>
+
+        <!-- Step 7 -->
+        <div class="node">
+            <span class="badge badge-loop">Step 6: State Flip</span>
+            <h3 class="font-bold text-lg text-slate-800">Update Unit States</h3>
+            <p class="text-sm text-slate-600 mt-1">
+                Identify units where timer &le; 0. <br>
+                <b>0 &rarr; 1:</b> Unit failed (sample TTR).<br>
+                <b>1 &rarr; 0:</b> Unit repaired (sample TTF).
+            </p>
+        </div>
+
+        <!-- Loop Line Visual -->
+        <div class="loop-line">
+            <div class="loop-label">Repeat for N Years</div>
+        </div>
+
+        <div class="connector"></div>
+
+        <!-- Final -->
+        <div class="node border-2 border-emerald-500 bg-emerald-50">
+            <span class="badge badge-result">Output</span>
+            <h3 class="font-bold text-lg text-emerald-800">Reliability Indices</h3>
+            <div class="grid grid-cols-2 gap-2 mt-2 text-sm">
+                <div class="bg-white p-2 rounded border border-emerald-200">
+                    <div class="text-xs text-slate-500">Probability</div>
+                    <div class="font-bold text-lg">LOLP</div>
+                </div>
+                <div class="bg-white p-2 rounded border border-emerald-200">
+                    <div class="text-xs text-slate-500">Expectation</div>
+                    <div class="font-bold text-lg">LOLE</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-12 text-center text-slate-400 text-xs">
+        &copy; Power System Reliability Engineering - SMCS Logic Visualization
+    </div>
+
+</body>
+</html>

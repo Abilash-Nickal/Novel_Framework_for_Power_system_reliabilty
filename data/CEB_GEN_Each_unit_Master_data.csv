@@ -1,0 +1,130 @@
+TYPES,Plant name,Unit Capacity (MW),Unit FOR,MTTR (hours),MTTF (hours),Unit Cost (LKR/kWh)
+HYDRO,Canyon,30,0.01,40,3960,3.76
+HYDRO,Canyon,30,0.01,40,3960,3.76
+HYDRO,Wimalasurendra,25,0.01,40,3960,3.76
+HYDRO,Wimalasurendra,25,0.01,40,3960,3.76
+HYDRO,Old Laxapana,9,0.01,40,3960,3.76
+HYDRO,Old Laxapana,9,0.01,40,3960,3.76
+HYDRO,Old Laxapana,9,0.01,40,3960,3.76
+HYDRO,Old Laxapana,12,0.01,40,3960,3.76
+HYDRO,Old Laxapana,12,0.01,40,3960,3.76
+HYDRO,New Laxapana,50,0.01,40,3960,3.76
+HYDRO,New Laxapana,50,0.01,40,3960,3.76
+HYDRO,Polpitiya,45,0.01,40,3960,3.76
+HYDRO,Polpitiya,45,0.01,40,3960,3.76
+HYDRO,Broadlands,17.5,0.01,40,3960,12
+HYDRO,Broadlands,17.5,0.01,40,3960,12
+HYDRO,Upper Kotmale,75,0.01,60,5940,4
+HYDRO,Upper Kotmale,75,0.01,60,5940,4
+HYDRO,Victoria,70,0.01,70,6930,4.81
+HYDRO,Victoria,70,0.01,70,6930,4.81
+HYDRO,Victoria,70,0.01,70,6930,4.81
+HYDRO,Kotmale,67,0.01,50,4950,4.81
+HYDRO,Kotmale,67,0.01,50,4950,4.81
+HYDRO,Kotmale,67,0.01,50,4950,4.81
+HYDRO,Randenigala,60,0.01,60,5940,4.81
+HYDRO,Randenigala,60,0.01,60,5940,4.81
+HYDRO,Ukuwela,19.3,0.01,50,4950,4.81
+HYDRO,Ukuwela,19.3,0.01,50,4950,4.81
+HYDRO,Bowatenna,40,0.01,50,4950,4.81
+HYDRO,Rantambe,25,0.01,50,4950,4.81
+HYDRO,Rantambe,25,0.01,50,4950,4.81
+HYDRO,Rantambe,25,0.01,50,4950,4.81
+HYDRO,Nilambe,1.61,0.01,50,4950,4.81
+HYDRO,Nilambe,1.61,0.01,50,4950,4.81
+HYDRO,Samanalawewa,60,0.01,60,5940,4.81
+HYDRO,Samanalawewa,60,0.01,60,5940,4.81
+HYDRO,Uma Oya,61,0.01,70,6930,4.81
+HYDRO,Uma Oya,61,0.01,70,6930,4.81
+HYDRO,Kukule,37.5,0.01,60,5940,4.81
+HYDRO,Kukule,37.5,0.01,60,5940,4.81
+HYDRO,Udawalawa,2,0.01,50,4950,4.81
+HYDRO,Udawalawa,2,0.01,50,4950,4.81
+HYDRO,Udawalawa,2,0.01,50,4950,4.81
+HYDRO,Inginiyagala,2.475,0.01,50,4950,4.81
+HYDRO,Inginiyagala,2.475,0.01,50,4950,4.81
+HYDRO,Inginiyagala,3.15,0.01,50,4950,4.81
+HYDRO,Inginiyagala,3.15,0.01,50,4950,4.81
+COAL,Lakvijaya CPP,300,0.08,100,1150,17.51
+COAL,Lakvijaya CPP,300,0.08,100,1150,17.51
+COAL,Lakvijaya CPP,300,0.08,100,1150,17.51
+THERMAL,Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+THERMAL,Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+THERMAL,Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+THERMAL,Gas Turbine ( Small GT 7),20,0.02,40,1999,70
+THERMAL,Gas Turbine (GT 7),115,0.068,50,734.2941176,76.71
+THERMAL,Combined Cycle-1,165,0.08,50,624,97.97
+THERMAL,Combined Cycle-2,163,0.08,50,624,52.53
+THERMAL,Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+THERMAL,Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+THERMAL,Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+THERMAL,Sapugaskanda PS Station A,20,0.068,60,881.3529412,56.81
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Sapugaskanda PS Station B,10,0.058,60,1033.482759,53.22
+THERMAL,Uthuru Janani,8.9,0.075,40,532.3333333,54.46
+THERMAL,Uthuru Janani,8.9,0.075,40,532.3333333,54.46
+THERMAL,Uthuru Janani,8.9,0.075,40,532.3333333,54.46
+THERMAL,Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+THERMAL,Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+THERMAL,Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+THERMAL,Barge Mounted Plant,15.6,0.052,50,960.5384615,53.94
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Containerized Emergency Plant,1,0.067,60,894.5223881,64.43
+THERMAL,Dankunujanani & Mathugama DPS,50,0.002,50,2499,64.43
+THERMAL,dendro,27,0.01,40,3960,20.94
+THERMAL,bio mass,17,0.01,40,3960,20.94
+THERMAL,waste to energy,10,0.01,40,3960,28.63

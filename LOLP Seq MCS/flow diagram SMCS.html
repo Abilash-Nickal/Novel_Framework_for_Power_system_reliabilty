@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMCS Time-to-Event Flowchart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .flow-line {
+            width: 2px;
+            height: 24px;
+            background-color: #94a3b8;
+            margin: 0 auto;
+        }
+        .arrow-head {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #94a3b8;
+            margin: -2px auto 0;
+        }
+        .node {
+            transition: all 0.3s ease;
+        }
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-8 font-sans text-slate-800">
+
+    <div class="max-w-3xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Sequential MCS: Time-to-Event Logic</h1>
+            <p class="text-slate-500">Visualizing the State-Transition Algorithm for Island Grid Reliability</p>
+        </header>
+
+        <!-- Start -->
+        <div class="flex flex-col items-center">
+            <div class="node bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-lg">START</div>
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- Data Loading -->
+            <div class="node bg-white border-2 border-slate-200 p-4 rounded-lg w-80 text-center shadow-sm">
+                <div class="text-xs font-bold text-slate-400 uppercase mb-1">Step 1: Input</div>
+                <p class="font-semibold">Load Data from CSV</p>
+                <p class="text-xs text-slate-500 mt-1">Capacities, MTTF, MTTR, & Hourly Load Curve</p>
+            </div>
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- Initialization -->
+            <div class="node bg-white border-2 border-slate-200 p-4 rounded-lg w-80 text-center shadow-sm">
+                <div class="text-xs font-bold text-slate-400 uppercase mb-1">Step 2: Initialization</div>
+                <p class="font-semibold">Set All Generators to "UP"</p>
+                <p class="text-xs text-slate-500 mt-1">Sample Initial Time-to-Failure (TTF)<br><em>T = -MTTF × ln(rand)</em></p>
+            </div>
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- MAIN LOOP CONTAINER -->
+            <div class="bg-blue-50 border-2 border-dashed border-blue-200 p-6 rounded-2xl w-full flex flex-col items-center">
+                <div class="text-xs font-black text-blue-400 uppercase mb-4 tracking-widest">Main Simulation Loop (100,000 Years)</div>
+
+                <!-- Snapshot -->
+                <div class="node bg-white border-2 border-blue-300 p-4 rounded-lg w-80 text-center shadow-sm">
+                    <p class="font-semibold">Determine Current State</p>
+                    <p class="text-xs text-slate-500 mt-1">Available Capacity = Σ (UP Units)<br>Demand = Load[current_time % 8760]</p>
+                </div>
+                <div class="flow-line"></div>
+                <div class="arrow-head"></div>
+
+                <!-- Time Step Selection -->
+                <div class="node bg-white border-2 border-blue-300 p-4 rounded-lg w-80 text-center shadow-sm">
+                    <p class="font-semibold text-blue-700">Calculate Next Time Step</p>
+                    <p class="text-xs text-slate-500 mt-1">dt = min(1.0, min(Time_to_Next_Event))</p>
+                </div>
+                <div class="flow-line"></div>
+                <div class="arrow-head"></div>
+
+                <!-- Reliability Check (Decision) -->
+                <div class="relative py-4">
+                    <div class="w-32 h-32 bg-amber-50 border-2 border-amber-400 rotate-45 flex items-center justify-center text-center shadow-sm">
+                        <div class="-rotate-45 text-sm font-bold text-amber-900 leading-tight">Supply <br> < Demand?</div>
+                    </div>
+                    <!-- Yes Path -->
+                    <div class="absolute top-1/2 -right-40 -translate-y-1/2 flex items-center">
+                        <div class="w-8 h-0.5 bg-amber-400"></div>
+                        <div class="bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2 rounded-lg border border-rose-300">
+                            Accumulate:<br>total_LOL_hours += dt
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-line"></div>
+                <div class="arrow-head"></div>
+
+                <!-- Advance Clock -->
+                <div class="node bg-white border-2 border-blue-300 p-4 rounded-lg w-80 text-center shadow-sm">
+                    <p class="font-semibold">Advance Clock & Timers</p>
+                    <p class="text-xs text-slate-500 mt-1">current_time += dt<br>time_to_next_event -= dt</p>
+                </div>
+                <div class="flow-line"></div>
+                <div class="arrow-head"></div>
+
+                <!-- Transition Check -->
+                <div class="node bg-indigo-600 text-white p-4 rounded-lg w-80 text-center shadow-md">
+                    <p class="font-bold">State Transition Logic</p>
+                    <p class="text-xs text-indigo-100 mt-1">Identify units where Timer ≈ 0<br>Flip State: UP ⟷ DOWN<br>Sample New Time from Exp. Dist.</p>
+                </div>
+
+                <div class="mt-6 text-blue-400 text-xs font-bold italic">Continue until time = 876,000,000 hours</div>
+            </div>
+
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- Final Metrics -->
+            <div class="node bg-emerald-50 border-2 border-emerald-400 p-5 rounded-lg w-80 text-center shadow-sm">
+                <div class="text-xs font-bold text-emerald-600 uppercase mb-1">Step 3: Output</div>
+                <p class="font-bold text-emerald-900">Calculate Reliability Indices</p>
+                <p class="text-xs text-emerald-700 mt-1">LOLP = Total_LOL / Total_Time<br>LOLE = Total_LOL / Num_Years</p>
+            </div>
+
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+            <div class="node bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-lg">END</div>
+        </div>
+
+        <footer class="mt-12 grid grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <h4 class="font-bold text-slate-900 text-sm mb-1">Key Innovation</h4>
+                <p class="text-xs text-slate-500">Using <code>-MTTF * np.log(rand)</code> ensures the simulation follows the <strong>Markov Memoryless Property</strong>, accurately representing random mechanical failures.</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <h4 class="font-bold text-slate-900 text-sm mb-1">Island Adaptation</h4>
+                <p class="text-xs text-slate-500">The <code>min(1.0, ...)</code> ensures that even if a generator doesn't fail for days, we still check the load <strong>every hour</strong> to detect peaks.</p>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>

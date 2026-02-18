@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSMCS Reliability Flowchart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .flow-line {
+            width: 2px;
+            height: 24px;
+            background-color: #94a3b8;
+            margin: 0 auto;
+        }
+        .arrow-head {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #94a3b8;
+            margin: -2px auto 0;
+        }
+        .node {
+            transition: all 0.3s ease;
+        }
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-8 font-sans text-slate-800">
+
+    <div class="max-w-3xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Non-Sequential MCS Flowchart</h1>
+            <p class="text-slate-500">Stochastic Reliability Assessment for the Sri Lankan Power Grid</p>
+        </header>
+
+        <!-- Start -->
+        <div class="flex flex-col items-center">
+            <div class="node bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-lg">START</div>
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- Data Loading -->
+            <div class="node bg-white border-2 border-slate-200 p-4 rounded-lg w-80 text-center shadow-sm">
+                <div class="text-xs font-bold text-slate-400 uppercase mb-1">Step 1: Data Acquisition</div>
+                <p class="font-semibold">Load CSV Data via Pandas</p>
+                <p class="text-xs text-slate-500 mt-1">126 Gen Capacities & FORs<br>8760 Hourly Load Profile</p>
+            </div>
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- Initialization -->
+            <div class="node bg-white border-2 border-slate-200 p-4 rounded-lg w-80 text-center shadow-sm">
+                <div class="text-xs font-bold text-slate-400 uppercase mb-1">Step 2: Initialize Counters</div>
+                <p class="font-semibold">H = 0 (Failures), N = 0 (Iter)</p>
+                <p class="text-xs text-slate-500 mt-1">Convert lists to NumPy Arrays<br>for Vectorized Speed</p>
+            </div>
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- MAIN LOOP CONTAINER -->
+            <div class="bg-emerald-50 border-2 border-dashed border-emerald-200 p-6 rounded-2xl w-full flex flex-col items-center">
+                <div class="text-xs font-black text-emerald-400 uppercase mb-4 tracking-widest">Monte Carlo Sampling Loop (8,760,000 Iter)</div>
+
+                <!-- Random Sampling -->
+                <div class="node bg-white border-2 border-emerald-300 p-4 rounded-lg w-80 text-center shadow-sm">
+                    <p class="font-semibold">Generator State Sampling</p>
+                    <p class="text-xs text-slate-500 mt-1">Generate 126 Random numbers [0,1]<br>Mask: rand > FOR = UP</p>
+                </div>
+                <div class="flow-line"></div>
+                <div class="arrow-head"></div>
+
+                <!-- Load Selection -->
+                <div class="node bg-white border-2 border-emerald-300 p-4 rounded-lg w-80 text-center shadow-sm">
+                    <p class="font-semibold">Load Demand Sampling</p>
+                    <p class="text-xs text-slate-500 mt-1">Randomly select an index [0-8759]<br>Fetch Load value from Profile</p>
+                </div>
+                <div class="flow-line"></div>
+                <div class="arrow-head"></div>
+
+                <!-- Decision -->
+                <div class="relative py-4">
+                    <div class="w-32 h-32 bg-amber-50 border-2 border-amber-400 rotate-45 flex items-center justify-center text-center shadow-sm">
+                        <div class="-rotate-45 text-sm font-bold text-amber-900 leading-tight">Demand > <br> Supply?</div>
+                    </div>
+                    <!-- Yes Path -->
+                    <div class="absolute top-1/2 -right-40 -translate-y-1/2 flex items-center">
+                        <div class="w-8 h-0.5 bg-amber-400"></div>
+                        <div class="bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2 rounded-lg border border-rose-300">
+                            Failure Event Found:<br>H = H + 1
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-line"></div>
+                <div class="arrow-head"></div>
+
+                <!-- Loop Control -->
+                <div class="node bg-indigo-600 text-white p-4 rounded-lg w-80 text-center shadow-md">
+                    <p class="font-bold">N = N + 1</p>
+                    <p class="text-xs text-indigo-100 mt-1">Check if N < 8.76M<br>If True: Repeat Sample</p>
+                </div>
+            </div>
+
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+
+            <!-- Final Calculation -->
+            <div class="node bg-blue-50 border-2 border-blue-400 p-5 rounded-lg w-80 text-center shadow-sm">
+                <div class="text-xs font-bold text-blue-600 uppercase mb-1">Step 3: Metrics Computation</div>
+                <p class="font-bold text-blue-900">Calculate Probability & Expectation</p>
+                <p class="text-xs text-blue-700 mt-1">LOLP = H / N<br>LOLE = LOLP × 8760 (hrs/yr)</p>
+            </div>
+
+            <div class="flow-line"></div>
+            <div class="arrow-head"></div>
+            <div class="node bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-lg">END</div>
+        </div>
+
+        <footer class="mt-12 grid grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <h4 class="font-bold text-slate-900 text-sm mb-1">NSMCS Advantage</h4>
+                <p class="text-xs text-slate-500">Fast and robust for island grids with many units. It treats every "snapshot" of the system as an independent event.</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <h4 class="font-bold text-slate-900 text-sm mb-1">Computational Detail</h4>
+                <p class="text-xs text-slate-500">The code uses <code>np.random.random</code> inside the loop to avoid memory overhead of creating a massive matrix upfront.</p>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>
