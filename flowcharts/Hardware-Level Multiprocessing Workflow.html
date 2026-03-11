@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Architecture Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1200px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Hardware-Level Multiprocessing Workflow</h1>
+        <p class="subtitle">How the OS, CPU Cores, Memory, and Cache execute your SMCS code</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Define Colors and Styles
+                classDef os fill:#e2e8f0,stroke:#64748b,stroke-width:2px,color:#000
+                classDef memory fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#000
+                classDef cpu fill:#fef08a,stroke:#eab308,stroke-width:2px,color:#000
+                classDef master fill:#dcfce7,stroke:#22c55e,stroke-width:2px,color:#000
+                classDef worker fill:#ffedd5,stroke:#f97316,stroke-width:2px,color:#000
+
+                %% Phase 1: Start & Memory Allocation
+                subgraph Phase 1 [1. Program Start & Data Loading]
+                    A([Run python smcs.py]) --> B[OS Creates Master Process]:::os
+                    B --> C[(Load Data: Disk ➔ RAM)]:::memory
+                    C --> D[NumPy Arrays live in Main RAM]:::memory
+                end
+
+                %% Phase 2: Process Creation
+                subgraph Phase 2 [2. OS Process Creation & Isolation]
+                    D --> E{OS queries CPU Hardware Register<br>Detects available cores}:::os
+                    E -->|max_workers=4| F[ProcessPoolExecutor]:::master
+
+                    F --> W1[Worker Process 1<br>Isolated RAM Space]:::worker
+                    F --> W2[Worker Process 2<br>Isolated RAM Space]:::worker
+                    F --> W3[Worker Process 3<br>Isolated RAM Space]:::worker
+                    F --> W4[Worker Process 4<br>Isolated RAM Space]:::worker
+                end
+
+                %% Phase 3: Hardware Execution
+                subgraph Phase 3 [3. CPU Hardware Execution & Cache]
+                    W1 --> S1[OS Scheduler assigns to Core 1]:::os
+                    W2 --> S2[OS Scheduler assigns to Core 2]:::os
+                    W3 --> S3[OS Scheduler assigns to Core 3]:::os
+                    W4 --> S4[OS Scheduler assigns to Core 4]:::os
+
+                    S1 --> C1[(L1/L2/L3 Cache<br>Fast Memory)]:::cpu
+                    S2 --> C1
+                    S3 --> C1
+                    S4 --> C1
+
+                    C1 --> EX[CPU executes Machine Instructions<br>Fetch ➔ Decode ➔ Execute ➔ Writeback]:::cpu
+                    EX --> SIMD[SIMD Vectorization<br>AVX/SSE vector ops for NumPy]:::cpu
+                end
+
+                %% Phase 4: IPC & Aggregation
+                subgraph Phase 4 [4. IPC & Master Aggregation]
+                    SIMD --> IPC[OS Pipe / Queue<br>Inter-Process Communication]:::os
+                    IPC -->|Results Serialized| AGG[Master Process Aggregates Results<br>Adds totals on 1 Core]:::master
+                    AGG --> OUT([Print Final Results to Terminal]):::master
+                end
+        </div>
+    </div>
+
+    <!-- Import Mermaid.js -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiprocessing Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1000px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1a365d;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>How our Code Uses Multiple CPU Cores</h1>
+
+        <!-- The Mermaid diagram definition -->
+        <div class="mermaid">
+            graph TD
+                %% Styling
+                classDef master fill:#e1f5fe,stroke:#039be5,stroke-width:2px,color:#000;
+                classDef worker fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000;
+                classDef result fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000;
+
+                subgraph P1 [Phase 1: The Master Controller]
+                    A([Start Program]) --> B[Load Data: Generators & Load Profiles]
+                    B --> C[Divide Work: 1000 Years / 4 Cores = 250 Years/Core]
+                    C --> D{Spawn 4 Parallel Processes}
+                end
+
+                %% Apply styles to Phase 1
+                class A,B,C,D master;
+
+                subgraph P2 [Phase 2: Parallel Execution on Independent CPU Cores]
+                    D -->|Job 1: 250 Years| W1[Worker 1 on Core 1<br/>Sets Random Seed & Runs]
+                    D -->|Job 2: 250 Years| W2[Worker 2 on Core 2<br/>Sets Random Seed & Runs]
+                    D -->|Job 3: 250 Years| W3[Worker 3 on Core 3<br/>Sets Random Seed & Runs]
+                    D -->|Job 4: 250 Years| W4[Worker 4 on Core 4<br/>Sets Random Seed & Runs]
+
+                    W1 -->|Returns raw sums| R1((Result 1 Dict))
+                    W2 -->|Returns raw sums| R2((Result 2 Dict))
+                    W3 -->|Returns raw sums| R3((Result 3 Dict))
+                    W4 -->|Returns raw sums| R4((Result 4 Dict))
+                end
+
+                %% Apply styles to Phase 2
+                class W1,W2,W3,W4 worker;
+                class R1,R2,R3,R4 result;
+
+                subgraph P3 [Phase 3: Aggregation Back to Master]
+                    R1 --> E[Collect all 4 Results]
+                    R2 --> E
+                    R3 --> E
+                    R4 --> E
+                    E --> F[Add them up: Total LOL, LOEE, Cost, Events]
+                    F --> G[Calculate Final Indices: LOLE, LOLP, etc.]
+                    G --> H([Print Final Academic Results])
+                end
+
+                %% Apply styles to Phase 3
+                class E,F,G,H master;
+        </div>
+    </div>
+
+    <!-- Import the Mermaid.js library to render the text above into an image -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        // Initialize mermaid with specific settings for best visuals
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronological SMCS with PHS Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1100px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #475569;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Hour-by-Hour SMCS with Pumped Storage</h1>
+        <p class="subtitle">Simulating chronological energy storage constraints, renewables, and Markov states</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Define Colors and Styles
+                classDef init fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#000;
+                classDef yearloop fill:#fef3c7,stroke:#d97706,stroke-width:3px,stroke-dasharray: 5 5,color:#000;
+                classDef hourloop fill:#e0f2fe,stroke:#0284c7,stroke-width:3px,stroke-dasharray: 5 5,color:#000;
+                classDef logic fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#000;
+                classDef charge fill:#cffafe,stroke:#06b6d4,stroke-width:2px,color:#000;
+                classDef discharge fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#000;
+                classDef metric fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#000;
+
+                %% Phase 1: Initialization
+                subgraph P1 [1. Initialization & Synthetic Profiles]
+                    A([Start Program]) --> B[Load System Parameters<br/>500 Years, PHS 300MW / 1000MWh]:::init
+                    B --> C[Generate Synthetic 8760-hour Profiles<br/>Using diurnal/seasonal sine waves<br/>for Load, Solar, and Wind]:::init
+                end
+
+                %% Phase 2: Yearly Loop
+                subgraph P2 [2. The Yearly Monte Carlo Loop]
+                    C --> Y{For Year = 1 to 500}:::yearloop
+                    Y -->|New Year| M1[Markov Generator: Conv Gens<br/>Exp random distribution for TTF/TTR<br/>Sum all capacities to conv_8760]:::logic
+                    M1 --> M2[Markov Generator: PHS Unit<br/>Determine if PHS pump/turbine is broken]:::logic
+                    M2 --> M3[Initialize PHS Reservoir<br/>ep_mwh = 50% Full]:::logic
+                end
+
+                %% Phase 3: Hourly Chronological Loop
+                subgraph P3 [3. The Hourly Chronological Loop]
+                    M3 --> H{For Hour = 1 to 8760}:::hourloop
+
+                    H -->|Next Hour| S1[Calculate Net Generation<br/>Total Gen = Conv + Solar + Wind<br/>Surplus = Total Gen - Load]:::logic
+
+                    S1 --> D1{Is Surplus > 0 ?}:::logic
+
+                    %% Charging Logic
+                    D1 -->|YES: Excess Power| C1{Is PHS Unit UP?}:::charge
+                    C1 -->|YES| C2[Charge Reservoir / Pump Water<br/>Constrained by: Surplus amount, PHS MW Cap,<br/>Available Storage Space, and Efficiency]:::charge
+                    C1 -->|NO| C3[Cannot Pump: Energy curtailed]:::charge
+                    C2 --> U1[Update Reservoir Volume ep_mwh]:::charge
+                    C3 --> U1
+
+                    %% Discharging Logic
+                    D1 -->|NO: Power Deficit| D2{Is PHS Unit UP?}:::discharge
+                    D2 -->|YES| D3[Discharge Reservoir / Generate<br/>Constrained by: Deficit amount, PHS MW Cap,<br/>and Available Water in reservoir]:::discharge
+                    D2 -->|NO| D4[Cannot Generate: Full Deficit remains]:::discharge
+                    D3 --> U2[Update Reservoir Volume ep_mwh<br/>Calculate remaining Deficit]:::discharge
+                    D4 --> U2
+
+                    %% Metrics
+                    U1 --> R1{Is Deficit > 0?}:::metric
+                    U2 --> R1
+                    R1 -->|YES| R2[Record Loss of Load Hour<br/>Add to Total Unserved Energy]:::metric
+                    R1 -->|NO| R3[Adequate Supply]:::metric
+
+                    R2 --> H
+                    R3 --> H
+                end
+
+                H -->|End of 8760 Hours| Y
+
+                %% Phase 4: Output
+                subgraph P4 [4. Final Indices Calculation]
+                    Y -->|End of 500 Years| O1[Calculate System Adequacy<br/>LOLE, LOLP, LOEE]:::metric
+                    O1 --> O2([Print Final Results to Console]):::metric
+                end
+        </div>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

@@ -66,7 +66,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\LOLP Non-seq MCS\NSMCS_Reliability_result.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\LOLP Non-seq MCS\Reliability_result_1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\LOLP Non-seq MCS\Reliability_results_Final_MID.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -102,6 +116,13 @@
           </value>
         </entry>
         <entry key="\basic logic\LOLP_Simulation_Results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\basic logic\availability check.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -234,6 +255,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\Monthly_Hydro_Profile.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\SRILANKAN_LOAD_CURVE_MODIFIED.csv">
           <value>
             <Attribute>
@@ -249,6 +277,13 @@
           </value>
         </entry>
         <entry key="\data\SriLanka_Load_8760hr_repeat.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\hydro_monthly_caps.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

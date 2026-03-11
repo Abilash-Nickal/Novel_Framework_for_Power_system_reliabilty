@@ -11,7 +11,7 @@ HOURS_PER_YEAR = 8760
 
 # --- File Paths ---
 # Assuming the file path is correct relative to the script location
-GEN_DATA_FILE = "../data/CEB_GEN_Each_unit_Master_data.csv"
+GEN_DATA_FILE = "../data/CEB_GEN_FOR_for_each_unit.csv"
 LOAD_DATA_FILE = "../data/SRILANKAN_LOAD_CURVE_MODIFIED.csv"
 
 

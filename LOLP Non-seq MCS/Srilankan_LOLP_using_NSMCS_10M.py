@@ -25,11 +25,11 @@ def load_generator_data(filepath):
 
     try:
         # Load columns 0 (Capacity) and 1 (FOR)
-        df_gen = pd.read_csv(filepath, header=0, usecols=[0, 1])
+        df_gen = pd.read_csv(filepath, header=0) # ASSUMPTION: The first column is Capacity (MW) and the second is FOR.
 
         # Extract columns and convert to standard Python lists
         Gen_list = df_gen['Unit Capacity (MW)'].astype(float).tolist()
-        FOR_list = df_gen['Unit FOR'].astype(float)  # Load as Series to apply validation
+        FOR_list = df_gen['Unit FOR'].astype(float)                       # Load as Series to apply validation
 
     except Exception as e:
         print(f"ERROR loading generator data: {e}")

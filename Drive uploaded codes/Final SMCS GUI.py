@@ -11,7 +11,7 @@ GEN_DATA_FILE = "CEB_GEN_Each_unit_Master_data.csv"
 
 # Defining two different load datasets
 LOAD_FILE_A = "SRILANKAN_LOAD_CURVE_MODIFIED.csv"
-LOAD_FILE_B = "SriLanka_Load_8760hr_Random.csv"
+LOAD_FILE_B = "../data/SRILANKAN_LOAD_CURVE_MODIFIED_2025.csv"
 
 RESULTS_CSV = os.path.join(os.path.dirname(__file__), "SMCS_Reliability_result.csv")
 HOURS_PER_YEAR = 8760
@@ -211,7 +211,7 @@ class SMCS_GUI:
 
     # GUI update functions
     def update_progress(self, current, total, lolp):
-        pct = (current / total) * 100
+        pct = (current / total) * 10
         self.progress['value'] = pct
         self.lolp_label.set(f"Live LOLP: {lolp:.12f}")
         self.status_text.set(f"Running... {pct:.2f}% Completed")

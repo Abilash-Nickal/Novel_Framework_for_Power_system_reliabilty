@@ -6,7 +6,7 @@ from datetime import datetime
 # 1. SIMULATION CONFIGURATION
 # =========================================================
 
-NUM_YEARS = 5000  # Set to 30,000 for your final run
+NUM_YEARS = 1000  # Set to 30,000 for your final run
 HOURS_PER_YEAR = 8760
 TOTAL_HOURS = NUM_YEARS * HOURS_PER_YEAR
 
@@ -40,7 +40,7 @@ def load_data():
         # Fallback for testing if column name is different
         cost_col = df_gen.columns[df_gen.columns.str.contains('Cost', case=False)][0]
 
-    df_gen = df_gen.sort_values(by=cost_col).reset_index(drop=True)
+    df_gen = df_gen.sort_values(by=cost_col).reset_index(drop=True) # Sort by cost for merit order dispatch
 
     Gen = df_gen['Unit Capacity (MW)'].values.astype(float)
     MTTF = df_gen['MTTF (hours)'].values.astype(float)

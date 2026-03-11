@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
+
 # ------------------------------
 #  LOAD GENERATOR DATA FROM CSV
 # ------------------------------
@@ -21,8 +22,8 @@ num_gen = len(Gen)
 #  LOAD DEMAND (8760 hours)
 # ------------------------------
 
-load = pd.read_csv("../data/SriLanka_Load_8760hr_repeat.csv")
-load_values = load["Load (MW)"].values
+load = pd.read_csv("../data/SRILANKAN_LOAD_CURVE_MODIFIED.csv")
+load_values = load["Load_MW_2025"].values
 load_hours = len(load_values)
 
 print(f" Loaded {len(load)} load.")
@@ -37,7 +38,10 @@ time = np.zeros(num_gen)
 H = 0
 N = 0
 l = 0  # load row index
-NUM_ITERATIONS=10000000
+NUM_YEARS=1000
+Hour_in_year=8760
+
+NUM_ITERATIONS= NUM_YEARS*Hour_in_year
 # ------------------------------
 #  INITIAL CYCLE GENERATION
 # ------------------------------

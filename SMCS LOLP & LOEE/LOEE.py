@@ -4,7 +4,7 @@ import random
 from datetime import datetime
 
 # --- Configuration ---
-NUM_YEARS = 1000
+NUM_YEARS = 3000
 HOURS_PER_YEAR = 8760
 
 # Monthly hydro capacity caps (MW) Jan..Dec

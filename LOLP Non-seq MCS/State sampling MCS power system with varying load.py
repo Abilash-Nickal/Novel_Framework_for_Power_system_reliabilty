@@ -11,7 +11,7 @@ load = pd.read_csv("../basic logic/load_rbts.csv")
 H = 0
 N = 0
 
-for _ in range(10000000):
+for _ in range(100000):
     availableGen = 0
 
     # Check if each generator is available

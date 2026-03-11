@@ -6,7 +6,7 @@ from datetime import datetime  # Required for timing the simulation
 
 # --- Configuration ---
 # Set to 100,000 years for statistical accuracy and practical runtime
-NUM_YEARS = 10000
+NUM_YEARS = 1000
 # The number of hours in a non-leap year
 HOURS_PER_YEAR = 8760
 
@@ -45,7 +45,7 @@ def load_data():
         df_load = pd.read_csv(LOAD_DATA_FILE, header=0)
 
         # Assuming load is in the first data column (index 0)
-        Annual_Load_Profile = df_load.iloc[:, 0].astype(float).values
+        Annual_Load_Profile = df_load.iloc[:, 1].astype(float).values
 
         # Check if the load profile is valid for a whole year repetition
         if len(Annual_Load_Profile) < HOURS_PER_YEAR:

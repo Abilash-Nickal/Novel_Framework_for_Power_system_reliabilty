@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vectorized SMCS Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1100px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Vectorized Batch SMCS Workflow</h1>
+        <p class="subtitle">How massive matrix operations and memory batching replace standard for-loops</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Styles
+                classDef init fill:#e8f4f8,stroke:#3498db,stroke-width:2px,color:#000
+                classDef precalc fill:#fcf3cf,stroke:#f1c40f,stroke-width:2px,color:#000
+                classDef batch fill:#eaeded,stroke:#95a5a6,stroke-width:3px,stroke-dasharray: 5 5,color:#000
+                classDef vector fill:#e8f8f5,stroke:#1abc9c,stroke-width:2px,color:#000
+                classDef result fill:#fadbd8,stroke:#e74c3c,stroke-width:2px,color:#000
+
+                %% Phase 1
+                subgraph P1 [1. Initialization & Data Setup]
+                    A([Start Program]) --> B[Load Generator & Load Data]:::init
+                    B --> C[Sort Generators by Unit Cost<br/>Base Merit Order]:::init
+                    C --> D[Reorder Arrays: Coal FIRST,<br/>then Merit Order for remainder]:::init
+                end
+
+                %% Phase 2
+                subgraph P2 [2. Up-Front Pre-computation]
+                    D --> E[Pre-tile Load & Hydro Caps<br/>to match Batch Size 50 years]:::precalc
+                    E --> F[Generate ALL Failure/Repair Transitions<br/>for full 2000 years simultaneously]:::precalc
+                    F --> G[Convert TTF/TTR to absolute<br/>cumulative transition hours]:::precalc
+                end
+
+                %% Phase 3 (The Loop)
+                subgraph P3 [3. Memory-Safe Batch Processing Loop]
+                    G --> H{For each Batch<br/>b = 0 to NUM_BATCHES}:::batch
+
+                    H -->|Next Batch| I[Map continuous transitions to<br/>discrete hourly states 0 or 1<br/>using np.searchsorted]:::vector
+                    I --> J[Calculate Base Hourly Availability<br/>States * Gen Capacity]:::vector
+                    J --> K[Vectorized Hydro Capping:<br/>Limit cumsum of hydro<br/>to monthly budgets]:::vector
+                    K --> L[Vectorized Merit Order Dispatch:<br/>Min unit avail vs remaining load]:::vector
+                    L --> M[Vectorized Reliability Math:<br/>Sum LOL hours, LOEE, and track events]:::vector
+                    M --> N[Vectorized Cost Math:<br/>Dispatched * UnitCost * 1000]:::vector
+                    N --> H
+                end
+
+                %% Phase 4
+                subgraph P4 [4. Final Aggregation]
+                    H -->|All Batches Complete| O[Calculate Final Indices<br/>LOLE, LOLP, LOEE, LOLF, LOLD]:::result
+                    O --> P([Print Academic Results]):::result
+                end
+        </div>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

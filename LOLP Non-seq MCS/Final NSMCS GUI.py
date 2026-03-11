@@ -25,9 +25,9 @@ HOURS_PER_YEAR = 8760
 # -------------------------------------------------------
 
 def load_generator_data(filepath):
-    df = pd.read_csv(filepath, usecols=['Unit Capacity (MW)', 'Unit FOR'])
+    df = pd.read_csv(filepath)
     Gen = df['Unit Capacity (MW)'].astype(float).values
-    FOR = df['Unit FOR'].astype(float).clip(0.0, 1.0).values
+    FOR = df['Unit FOR'].astype(float).clip(0.0, 1.0).values #
     return Gen, FOR
 
 

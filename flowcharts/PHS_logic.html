@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHS SMCS Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1200px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 2.2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        /* Footer Cards Styles */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 30px;
+        }
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .info-card h4 {
+            margin: 0 0 10px 0;
+            color: #0f172a;
+            font-size: 1.05rem;
+        }
+        .info-card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #334155;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Pumped Hydro Storage SMCS Logic</h1>
+        <p class="subtitle">Chronological State-of-Charge Tracking and Adequacy Evaluation</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Define Colors and Styles
+                classDef startend fill:#0f172a,stroke:#0f172a,stroke-width:2px,color:#fff;
+                classDef step fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px,color:#0f172a;
+                classDef gen fill:#eff6ff,stroke:#60a5fa,stroke-width:2px,color:#1e3a8a;
+                classDef loop fill:#ffffff,stroke:#94a3b8,stroke-width:3px,stroke-dasharray: 5 5,color:#000;
+                classDef decision fill:#fffbeb,stroke:#fcd34d,stroke-width:2px,color:#92400e;
+                classDef charge fill:#cffafe,stroke:#06b6d4,stroke-width:2px,color:#083344;
+                classDef discharge fill:#ffedd5,stroke:#fdba74,stroke-width:2px,color:#7c2d12;
+                classDef metric fill:#fef2f2,stroke:#fca5a5,stroke-width:2px,color:#7f1d1d;
+
+                A([START]):::startend --> B[Initialize Parameters<br/>SIMULATION_YEARS = 500<br/>PHS = 300MW / 1000MWh]:::step
+                B --> C[generate_8760_profiles<br/>Create synthetic Load, Solar, and Wind arrays]:::gen
+
+                %% Outer Year Loop
+                subgraph YL [Outer Loop: For year = 0 to 499]
+                    C --> D[generate_annual_states<br/>Sum random Up/Down states for all Conv Gens<br/>Result: conv_8760 array]:::step
+                    D --> E[generate_annual_states<br/>Get PHS mechanical states<br/>Result: phs_state_8760]:::step
+                    E --> F[Initialize Reservoir<br/>ep_mwh = PHS_STORAGE_MWH * 0.5]:::step
+
+                    %% Inner Hour Loop
+                    subgraph HL [Inner Chronological Loop: For h = 0 to 8759]
+                        F --> G[Calculate System Balance<br/>gen_total = conv + solar + wind<br/>surplus_power = gen_total - current_load]:::gen
+
+                        G --> H{surplus_power > 0?}:::decision
+
+                        %% Charging Path
+                        H -->|YES: Excess Energy| I{phs_is_up?}:::decision
+                        I -->|YES| J[CHARGE PHS<br/>pumping_power = min surplus, PHS_CAP<br/>Limit by available space / EFFICIENCY<br/>ep_mwh += pumping_power * EFFICIENCY]:::charge
+                        I -->|NO| K[Cannot Pump<br/>Energy Curtailed]:::step
+
+                        %% Discharging Path
+                        H -->|NO: Power Deficit| L{phs_is_up?}:::decision
+                        L -->|YES| M[DISCHARGE PHS<br/>generating_power = min curtailment, PHS_CAP<br/>Limit by available ep_mwh<br/>ep_mwh -= generating_power<br/>deficit = curtailment - generating_power]:::discharge
+                        L -->|NO| N[Cannot Generate<br/>deficit = curtailment]:::step
+
+                        %% Convergence & Metrics
+                        J --> O{deficit > 1e-4?}:::decision
+                        K --> O
+                        M --> O
+                        N --> O
+
+                        O -->|YES| P[Failure Event<br/>total_loss_of_load_hours += 1<br/>total_unserved_energy += deficit]:::metric
+                        O -->|NO| Q[Adequate Supply]:::step
+                    end
+                end
+
+                %% Assign classes to subgraphs
+                class YL loop;
+                class HL loop;
+
+                P -->|Next Hour| G
+                Q -->|Next Hour| G
+
+                Q -->|End of Year| D
+
+                Q -->|End of 500 Years| R[Calculate Final Indices<br/>LOLE, LOLP, LOEE]:::step
+                R --> S([END]):::startend
+        </div>
+
+        <!-- Footer Information Cards -->
+        <div class="footer-grid">
+            <div class="info-card">
+                <h4>The Chronological Dependency</h4>
+                <p>Unlike standard Monte Carlo, this code <strong>cannot</strong> be fully vectorized. The amount of water available in the reservoir at Hour 500 (<code>ep_mwh</code>) strictly depends on whether the system charged or discharged at Hour 499.</p>
+            </div>
+            <div class="info-card">
+                <h4>Markov Pre-computation</h4>
+                <p>To keep the script fast, <code>generate_annual_states()</code> is called <em>outside</em> the hourly loop. It mathematically pre-computes 8760 hours of mechanical breakdowns upfront, leaving only simple arithmetic for the heavy hourly loop.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Mermaid.js -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

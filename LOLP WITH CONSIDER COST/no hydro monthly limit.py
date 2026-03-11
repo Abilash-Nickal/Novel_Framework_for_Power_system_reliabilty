@@ -3,16 +3,15 @@ import pandas as pd
 from datetime import datetime
 import sys
 
-# =========================================================
+
 # 1. SIMULATION CONFIGURATION
-# =========================================================
-NUM_YEARS = 1000  # Start with 100 to test; increase to 30,000 later
+
+NUM_YEARS = 10  # Start with 100 to test; increase to 30,000 later
 HOURS_PER_YEAR = 8760
 TOTAL_HOURS = NUM_YEARS * HOURS_PER_YEAR
 
-# =========================================================
 # 2. INPUT FILES (Ensure these paths are correct for your PC)
-# =========================================================
+
 GEN_DATA_FILE = "../data/CEB_GEN_Each_unit_Master_data.csv"
 LOAD_DATA_FILE = "../data/SRILANKAN_LOAD_CURVE_MODIFIED.csv"
 

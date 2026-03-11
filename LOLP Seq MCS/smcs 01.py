@@ -11,7 +11,7 @@ HOURS_PER_YEAR = 8760
 
 # --- File Names ---
 # Adjusting file names based on standard file structure (assuming '../data/' prefix is correct if run from a script folder)
-GEN_DATA_FILE = "../data/CEB_GEN_MTTR_&_MTTF_for_each_unit.csv"
+GEN_DATA_FILE = "../data/CEB_GEN_Each_unit_Master_data.csv"
 LOAD_DATA_FILE = "../data/SriLanka_Load_8760hr_repeat.csv"
 
 

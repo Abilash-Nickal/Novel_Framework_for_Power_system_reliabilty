@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSMCS Reliability Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1000px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 2.2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        /* Footer Cards Styles */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 30px;
+        }
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .info-card h4 {
+            margin: 0 0 10px 0;
+            color: #0f172a;
+            font-size: 1.05rem;
+        }
+        .info-card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Non-Sequential MCS Flowchart</h1>
+        <p class="subtitle">Stochastic Reliability Assessment for the Sri Lankan Power Grid</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Define Colors and Styles
+                classDef startend fill:#0f172a,stroke:#0f172a,stroke-width:2px,color:#fff;
+                classDef step fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,color:#0f172a;
+                classDef process fill:#ffffff,stroke:#6ee7b7,stroke-width:2px,color:#0f172a;
+                classDef decision fill:#fffbeb,stroke:#fcd34d,stroke-width:2px,color:#92400e;
+                classDef action fill:#ffe4e6,stroke:#fda4af,stroke-width:2px,color:#9f1239;
+                classDef control fill:#4f46e5,stroke:#3730a3,stroke-width:2px,color:#fff;
+                classDef metric fill:#eff6ff,stroke:#60a5fa,stroke-width:2px,color:#1e3a8a;
+                classDef loopbox fill:#ecfdf5,stroke:#10b981,stroke-width:3px,stroke-dasharray: 5 5,color:#064e3b;
+
+                A([START]):::startend --> B[Step 1: Data Acquisition<br/>Load CSV Data via Pandas<br/>126 Gen Capacities & FORs]:::step
+                B --> C[Step 2: Initialize Counters<br/>H = 0 Failures, N = 0 Iter<br/>Convert to NumPy Arrays]:::step
+
+                %% The Main Loop
+                subgraph P1 [Monte Carlo Sampling Loop: 8,760,000 Iterations]
+                    C --> D[Generator State Sampling<br/>Generate 126 Random numbers 0 to 1<br/>Mask: rand > FOR = UP]:::process
+                    D --> E[Load Demand Sampling<br/>Randomly select index 0-8759<br/>Fetch Load value]:::process
+                    E --> F{Demand > Supply?}:::decision
+
+                    F -->|YES| G[Failure Event Found<br/>H = H + 1]:::action
+                    F -->|NO| H_node[Loop Control<br/>N = N + 1]:::control
+                    G --> H_node
+                end
+
+                %% Assign class to the subgraph box
+                class P1 loopbox;
+
+                H_node -->|If N < 8.76M Repeat| D
+                H_node -->|If N >= 8.76M Finish| I[Step 3: Metrics Computation<br/>LOLP = H / N<br/>LOLE = LOLP * 8760 hrs/yr]:::metric
+
+                I --> J([END]):::startend
+        </div>
+
+        <!-- Footer Information Cards -->
+        <div class="footer-grid">
+            <div class="info-card">
+                <h4>NSMCS Advantage</h4>
+                <p>Fast and robust for island grids with many units. It treats every "snapshot" of the system as an independent event, allowing for extremely fast sampling without chronological tracking.</p>
+            </div>
+            <div class="info-card">
+                <h4>Computational Detail</h4>
+                <p>The code uses <code>np.random.random</code> inside the loop to avoid the memory overhead of creating a massive matrix upfront, trading some vectorization speed for absolute memory safety.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Mermaid.js -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

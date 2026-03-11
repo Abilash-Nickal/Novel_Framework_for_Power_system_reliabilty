@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vectorized Computing Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1100px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 2.2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        /* Footer Cards Styles */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 30px;
+        }
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .info-card h4 {
+            margin: 0 0 10px 0;
+            color: #0f172a;
+            font-size: 1.05rem;
+        }
+        .info-card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #334155;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Vectorized Computing Core</h1>
+        <p class="subtitle">How Matrix Broadcasting & NumPy Arrays Replace Hourly "For" Loops</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Styles
+                classDef matrix fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#064e3b;
+                classDef hydro fill:#cffafe,stroke:#06b6d4,stroke-width:2px,color:#164e63;
+                classDef dispatch fill:#fef08a,stroke:#ca8a04,stroke-width:2px,color:#713f12;
+                classDef eval fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#7f1d1d;
+                classDef box fill:#ffffff,stroke:#94a3b8,stroke-width:3px,stroke-dasharray: 5 5,color:#0f172a;
+
+                %% Phase 1: Matrix Construction
+                subgraph P1 [1. Matrix Construction: Batch Array Building]
+                    A[Generate Base Hours Vector<br/>np.arange start_hour, end_hour]:::matrix
+                    B[Build 2D States Matrix<br/>Num_Gens x Batch_Hours<br/>np.searchsorted maps transitions to 0s and 1s]:::matrix
+                    C[Broadcast Availability Matrix<br/>Avail = States * Gen_Capacity array]:::matrix
+                    A --> B --> C
+                end
+
+                %% Phase 2: Vectorized Hydro Constraints
+                subgraph P2 [2. Vectorized Hydro Capping Algorithm]
+                    C --> D[Extract Hydro Rows<br/>hydro_avail = Avail filter is_hydro]:::hydro
+                    D --> E[Column-wise Cumulative Sum<br/>cum_hydro = np.cumsum hydro_avail]:::hydro
+                    E --> F[Element-wise Cap against Hourly Profile<br/>cum_capped = np.minimum cum_hydro, H_cap_batch]:::hydro
+                    F --> G[Decumulate to get Capped Unit Avail<br/>Subtract row n-1 from row n<br/>Overwrite Avail is_hydro block]:::hydro
+                end
+
+                %% Phase 3: Vectorized Dispatch
+                subgraph P3 [3. Matrix Merit Order Dispatch]
+                    G --> H[Full System Cumulative Sum<br/>cum_Avail = np.cumsum Avail]:::dispatch
+                    H --> I[Shift Matrix Down 1 Row<br/>cum_Avail_prev = capacity used BEFORE current unit]:::dispatch
+                    I --> J[Matrix Min/Max Operation<br/>Dispatched = np.minimum Avail, np.maximum 0, Load - cum_Avail_prev]:::dispatch
+                end
+
+                %% Phase 4: Parallel Array Evaluation
+                subgraph P4 [4. Array-Level Reliability & Cost Evaluation]
+                    J --> K[System Total Availability<br/>Total_System_Avail = Bottom row of cum_Avail]:::eval
+                    K --> L[Calculate Shortfall Vector<br/>Shortfall = np.maximum 0, Load_batch - Total_System_Avail]:::eval
+                    L --> M[Boolean Masking & Logic<br/>is_failing = Shortfall > 0<br/>new_events = is_failing AND NOT prev_hour]:::eval
+                    M --> N[Vector Aggregation<br/>np.sum for LOL hours, LOEE, Events, and Costs]:::eval
+                end
+
+                %% Apply dashed box styles
+                class P1,P2,P3,P4 box;
+        </div>
+
+        <!-- Footer Information Cards -->
+        <div class="footer-grid">
+            <div class="info-card">
+                <h4>1. NumPy Broadcasting</h4>
+                <p>When you do <code>States * Gen[:, None]</code>, NumPy virtually stretches the 1D generator capacity list across all 87,600 columns instantly in C-memory, avoiding massive Python loops.</p>
+            </div>
+            <div class="info-card">
+                <h4>2. The CumSum Trick</h4>
+                <p><code>np.cumsum</code> is the secret to vectorized dispatch. It figures out exactly how much capacity is "ahead in line" for every hour simultaneously, so the system knows when the load is satisfied.</p>
+            </div>
+            <div class="info-card">
+                <h4>3. Boolean Masking</h4>
+                <p>To count events, <code>is_failing & ~is_failing_padded[:-1]</code> compares an array against a shifted version of itself to find exact moments where <code>0</code> turns to <code>1</code> (A new failure event) across the whole decade.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Mermaid.js -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

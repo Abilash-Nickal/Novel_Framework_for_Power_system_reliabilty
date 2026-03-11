@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMCS Time-to-Event Flowchart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1100px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 2.2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        /* Footer Cards Styles */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 30px;
+        }
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .info-card h4 {
+            margin: 0 0 10px 0;
+            color: #0f172a;
+            font-size: 1.05rem;
+        }
+        .info-card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #334155;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Sequential MCS: Time-to-Event Logic</h1>
+        <p class="subtitle">Visualizing the State-Transition Algorithm for Island Grid Reliability</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Define Colors and Styles
+                classDef startend fill:#0f172a,stroke:#0f172a,stroke-width:2px,color:#fff;
+                classDef step fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,color:#0f172a;
+                classDef loopstep fill:#ffffff,stroke:#93c5fd,stroke-width:2px,color:#0f172a;
+                classDef decision fill:#fffbeb,stroke:#fcd34d,stroke-width:2px,color:#92400e;
+                classDef action fill:#ffe4e6,stroke:#fda4af,stroke-width:2px,color:#9f1239;
+                classDef control fill:#4f46e5,stroke:#3730a3,stroke-width:2px,color:#fff;
+                classDef metric fill:#ecfdf5,stroke:#34d399,stroke-width:2px,color:#064e3b;
+                classDef loopbox fill:#eff6ff,stroke:#60a5fa,stroke-width:3px,stroke-dasharray: 5 5,color:#1e3a8a;
+
+                A([START]):::startend --> B[Step 1: Input<br/>Load Data from CSV<br/>Capacities, MTTF, MTTR, & Hourly Load Curve]:::step
+                B --> C[Step 2: Initialization<br/>Set All Generators to UP<br/>Sample Initial TTF: T = -MTTF * ln rand]:::step
+
+                %% The Main Loop
+                subgraph P1 [Main Simulation Loop: 100,000 Years]
+                    C --> D[Determine Current State<br/>Available Capacity = sum UP Units<br/>Demand = Load current_time % 8760]:::loopstep
+                    D --> E[Calculate Next Time Step<br/>dt = min 1.0, min Time_to_Next_Event]:::loopstep
+                    E --> F{Supply < Demand?}:::decision
+
+                    F -->|YES| G[Failure Accumulation<br/>total_LOL_hours += dt]:::action
+                    F -->|NO| H_node[Advance Clock & Timers<br/>current_time += dt<br/>time_to_next_event -= dt]:::loopstep
+                    G --> H_node
+
+                    H_node --> I[State Transition Logic<br/>Identify units where Timer ≈ 0<br/>Flip State: UP/DOWN<br/>Sample New Time from Exp. Dist.]:::control
+                end
+
+                %% Assign class to the subgraph box
+                class P1 loopbox;
+
+                I -->|If time < 876,000,000 Repeat| D
+                I -->|If time >= 876,000,000 Finish| J[Step 3: Output<br/>Calculate Reliability Indices<br/>LOLP = Total_LOL / Total_Time<br/>LOLE = Total_LOL / Num_Years]:::metric
+
+                J --> K([END]):::startend
+        </div>
+
+        <!-- Footer Information Cards -->
+        <div class="footer-grid">
+            <div class="info-card">
+                <h4>Key Innovation</h4>
+                <p>Using <code>-MTTF * np.log(rand)</code> ensures the simulation follows the <strong>Markov Memoryless Property</strong>, accurately representing random mechanical failures without tracking historical downtime.</p>
+            </div>
+            <div class="info-card">
+                <h4>Island Adaptation</h4>
+                <p>The <code>min(1.0, ...)</code> ensures that even if a generator doesn't fail for days, we still step forward and check the load profile <strong>every hour</strong> to detect peaks.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Mermaid.js -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

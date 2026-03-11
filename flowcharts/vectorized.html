@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Vectorized SMCS Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            overflow-x: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diagram-container">
+        <h1>Vectorized SMCS Data Pipeline</h1>
+        <p class="subtitle">Processing 17.5 Million Hours using Massive Matrix Operations & SIMD</p>
+
+        <div class="mermaid">
+            graph TD
+                %% Define Colors and Styles
+                classDef init fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#000;
+                classDef mc fill:#fef08a,stroke:#ca8a04,stroke-width:2px,color:#000;
+                classDef matrix fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#000;
+                classDef loop fill:#f3f4f6,stroke:#94a3b8,stroke-width:3px,stroke-dasharray: 5 5,color:#000;
+                classDef metric fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#000;
+
+                %% Phase 1: Data Preparation
+                subgraph P1 [1. Initialization & Merit Order]
+                    A([Start Vectorized SMCS]) --> B[Load Gen Capacities, MTTF, MTTR, Costs]:::init
+                    B --> C[Sort arrays by Unit Cost]:::init
+                    C --> D[Force Dispatch Order:<br/>Base Load Coal First, then Merit Order]:::init
+                    D --> E[Tile Load Data to match<br/>Batch Size 438,000 hours]:::init
+                end
+
+                %% Phase 2: Up-Front Monte Carlo
+                subgraph P2 [2. Full-Lifecycle Monte Carlo Generation]
+                    E --> F[Generate Exponential Random Variables<br/>TTF = -MTTF * ln rand<br/>TTR = -MTTR * ln rand]:::mc
+                    F --> G[CumSum Durations:<br/>Creates absolute Transition Times<br/>for all 2000 years upfront]:::mc
+                end
+
+                %% Phase 3: The Big Matrix Loop
+                subgraph P3 [3. The Batch Processing Loop to prevent RAM Overflow]
+                    G --> H{For b = 0 to 40 Batches<br/>50 Years per batch}:::loop
+
+                    H -->|New Batch 438,000 hours| I[States Matrix Create<br/>np.searchsorted maps transitions<br/>Output Num_Gen x 438,000 grid]:::matrix
+                    I --> J[Avail Matrix = States * Gen_Capacity]:::matrix
+
+                    J --> K[Vectorized Hydro Constraints<br/>cum_hydro = cumsum<br/>Apply min monthly cap budget]:::matrix
+
+                    K --> L[Vectorized Merit Order Dispatch<br/>cum_Avail = cumsum<br/>Dispatched = min Avail, remaining_load]:::matrix
+
+                    L --> M[System Shortfall Matrix<br/>Shortfall = max 0, Load - Total_Avail]:::matrix
+
+                    M --> N[Cost Matrix = Dispatched * UnitCost * 1000]:::matrix
+                    N --> H
+                end
+
+                %% Phase 4: Reliability Indices
+                subgraph P4 [4. Metrics & Output]
+                    M --> O[Frequency Detection<br/>new_events = is_failing AND NOT prev_state]:::metric
+                    H -->|All 17.5M hours done| P[Aggregate Total LOL, LOEE, Events, Cost]:::metric
+                    O -.-> P
+                    P --> Q[Calculate Final Indices<br/>LOLE, LOLP, LOEE, LOLF, LOLD]:::metric
+                    Q --> R([Print Final Output]):::metric
+                end
+        </div>
+    </div>
+
+    <!-- Import Mermaid.js -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

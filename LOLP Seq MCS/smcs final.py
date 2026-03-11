@@ -20,8 +20,10 @@ def load_data(gen_file, load_file):
         MTTF = df_gen['MTTF (hours)'].values
         MTTR = df_gen['MTTR (hours)'].values
 
+
+        LOAD_COLUMN = "Modified_LC"  # Modified_LC,old_modified,Total_LC
         df_load = pd.read_csv(load_file)
-        Load = df_load.iloc[:, 0].values.astype(float)
+        Load = df_load[LOAD_COLUMN].values.astype(np.float32)
 
         # Ensure 8760-hour profile
         if len(Load) < 8760:
@@ -117,9 +119,9 @@ def run_smcs(Gen, MTTF, MTTR, Load, years=1000):
 if __name__ == "__main__":
 
     # Define Scenario Parameters
-    YEARS_TO_RUN = 100
+    YEARS_TO_RUN = 1000
     GEN_FILE = "../data/CEB_GEN_Each_unit_Master_data.csv"
-    LOAD_FILE = "../data/SriLanka_Load_8760hr_repeat.csv"
+    LOAD_FILE = "../data/SRILANKAN_LOAD_CURVE_MODIFIED_2025.csv"
 
     # Load Data
     Gen, MTTF, MTTR, Load = load_data(GEN_FILE, LOAD_FILE)
