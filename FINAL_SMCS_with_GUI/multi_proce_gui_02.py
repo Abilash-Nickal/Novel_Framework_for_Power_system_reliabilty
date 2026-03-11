@@ -36,7 +36,7 @@ class AdvancedSMCSGui:
         self.stop_event = self.manager.Event()  # The kill switch
         self.is_simulating = False
 
-        # Tracking Aggregated Data (for the side panel)
+        # Tracking Aggregated Data
         self.total_simulated_years = 0
         self.total_lol_hours = 0.0
         self.total_loee = 0.0
@@ -46,13 +46,14 @@ class AdvancedSMCSGui:
         self.target_workers = 0
         self.start_time = 0
 
-        # State for plotting Core subplots
+        # State for plotting
         self.current_metric = "lole"
-        self.core_data = {}  # Will hold individual core histories
-        self.axes = []  # Matplotlib axes grid
-        self.lines = {}  # Mapped lines by worker_id
-        self.spans = {}  # Mapped shaded regions by worker_id
-        self.hlines = {}  # Mapped horizontal red lines by worker_id
+        self.core_data = {}
+        self.global_history = {"y": [], "lole": [], "lolp": [], "loee": [], "cost": []}
+        self.lines = {}
+        self.line_total = None
+        self.hline_total = None
+        self.span = None
 
         self.setup_ui()
 
@@ -122,7 +123,7 @@ class AdvancedSMCSGui:
         # Placeholder canvas before simulation starts
         self.fig = plt.Figure(figsize=(7, 5), dpi=100)
         self.ax = self.fig.add_subplot(111)
-        self.ax.set_title("Ready to Start (Grid will populate dynamically)", fontsize=12, fontweight='bold')
+        self.ax.set_title("Ready to Start", fontsize=12, fontweight='bold')
         self.ax.set_ylabel("Hours/Year")
         self.ax.grid(True, alpha=0.3, linestyle='--')
 
@@ -189,44 +190,39 @@ class AdvancedSMCSGui:
 
         titles = {"lole": "LOLE", "lolp": "LOLP", "loee": "LOEE", "cost": "Cost"}
         ylabels = {"lole": "Hours/Year", "lolp": "Probability", "loee": "MWh/Year", "cost": "LKR"}
-
         show_shade = (metric_key == "lole")
 
-        if not hasattr(self, 'axes') or len(self.axes) == 0:
-            self.ax.set_title(f"{titles[metric_key]} Convergence", fontsize=12, fontweight='bold')
-            self.ax.set_ylabel(ylabels[metric_key])
-            self.canvas.draw()
+        if not hasattr(self, 'ax'):
             return
 
-        # Update all subplots in the grid
-        for i, ax in enumerate(self.axes):
-            ax.set_title(f"Core {i + 1}: {titles[metric_key]}", fontsize=9, fontweight='bold')
-            ax.set_ylabel(ylabels[metric_key], fontsize=8)
+        self.ax.set_title(f"{titles[metric_key]} Convergence (All Cores vs System Total)", fontsize=12,
+                          fontweight='bold')
+        self.ax.set_ylabel(ylabels[metric_key], fontsize=10)
 
-            # --- Handle the 30-32 Shaded Region ---
-            if show_shade:
-                # Add it if it doesn't exist
-                if self.spans.get(i) is None:
-                    self.spans[i] = ax.axhspan(30, 32, color='#10b981', alpha=0.15)
-            else:
-                # Completely remove it so it doesn't ruin the Y-Axis Auto-scaling
-                if self.spans.get(i) is not None:
-                    self.spans[i].remove()
-                    self.spans[i] = None
+        # --- Handle the 30-32 Shaded Region ---
+        if show_shade:
+            if self.span is None:
+                self.span = self.ax.axhspan(30, 32, color='#10b981', alpha=0.15)
+        else:
+            if self.span is not None:
+                self.span.remove()
+                self.span = None
 
-            # --- Handle the Data and Red Line ---
+        # --- Handle Core Lines ---
+        for i in range(self.target_workers):
             if i in self.core_data:
                 history = self.core_data[i]["history"]
                 if history["y"]:
                     self.lines[i].set_data(history["y"], history[metric_key])
 
-                    # Update dynamic horizontal red line
-                    latest_val = history[metric_key][-1]
-                    self.hlines[i].set_ydata([latest_val, latest_val])
+        # --- Handle Global Line and Horizontal Red Line ---
+        if self.global_history["y"]:
+            self.line_total.set_data(self.global_history["y"], self.global_history[metric_key])
+            latest_val = self.global_history[metric_key][-1]
+            self.hline_total.set_ydata([latest_val, latest_val])
 
-                    ax.relim()
-                    ax.autoscale_view()
-
+        self.ax.relim()
+        self.ax.autoscale_view()
         self.canvas.draw()
 
     def update_button_styles(self):
@@ -268,7 +264,6 @@ class AdvancedSMCSGui:
         # ==========================================
         # CRITICAL RESTART LOGIC: FLUSH QUEUE
         # ==========================================
-        # Flush any leftover messages from a previously stopped run
         while not self.update_queue.empty():
             try:
                 self.update_queue.get_nowait()
@@ -293,15 +288,9 @@ class AdvancedSMCSGui:
 
         self.target_workers = num_cores
 
-        # Initialize the Plot Grid for all cores
+        # Initialize the Single Plot
         self.fig.clear()
-        cols = math.ceil(math.sqrt(num_cores))
-        rows = math.ceil(num_cores / cols)
-
-        self.axes = []
-        self.lines = {}
-        self.spans = {}
-        self.hlines = {}
+        self.ax = self.fig.add_subplot(111)
 
         titles = {"lole": "LOLE", "lolp": "LOLP", "loee": "LOEE", "cost": "Cost"}
         ylabels = {"lole": "Hours/Year", "lolp": "Probability", "loee": "MWh/Year", "cost": "LKR"}
@@ -309,39 +298,40 @@ class AdvancedSMCSGui:
         m_ylab = ylabels[self.current_metric]
         show_shade = (self.current_metric == "lole")
 
+        self.ax.set_title(f"{m_title} Convergence (All Cores vs System Total)", fontsize=12, fontweight='bold')
+        self.ax.set_ylabel(m_ylab, fontsize=10)
+        self.ax.grid(True, alpha=0.3, linestyle='--')
+
+        self.lines = {}
+        # Create individual semi-transparent lines for cores
         for i in range(num_cores):
-            ax = self.fig.add_subplot(rows, cols, i + 1)
-            ax.set_title(f"Core {i + 1}: {m_title}", fontsize=9, fontweight='bold')
-            ax.set_ylabel(m_ylab, fontsize=8)
-            ax.tick_params(axis='both', which='major', labelsize=8)
+            self.lines[i], = self.ax.plot([], [], color="#3b82f6", alpha=0.3, lw=1.2)
 
-            line, = ax.plot([], [], color="#003b5c", lw=1.5)
+        # Create bold global system line
+        self.line_total, = self.ax.plot([], [], color="#ef4444", lw=2.5, label="System Average")
 
-            # Create dynamic red horizontal line (initially hidden at y=0)
-            hline = ax.axhline(y=0, color='red', linestyle='--', linewidth=1.2, alpha=0.8)
+        # Create dynamic red horizontal line
+        self.hline_total = self.ax.axhline(y=0, color='#ef4444', linestyle='--', linewidth=1.2, alpha=0.8)
 
-            ax.grid(True, alpha=0.3, linestyle='--')
+        self.ax.legend(loc="upper right", fontsize=9)
 
-            # Create shaded region 30-32 ONLY if starting on LOLE tab
-            span = None
-            if show_shade:
-                span = ax.axhspan(30, 32, color='#10b981', alpha=0.15)
-
-            self.axes.append(ax)
-            self.lines[i] = line
-            self.hlines[i] = hline
-            self.spans[i] = span
+        # Handle shaded region 30-32
+        self.span = None
+        if show_shade:
+            self.span = self.ax.axhspan(30, 32, color='#10b981', alpha=0.15)
 
         self.fig.tight_layout()
         self.canvas.draw()
 
-        # Reset tracking data dynamically per core
+        # Reset tracking data dynamically
         self.core_data = {}
         for i in range(num_cores):
             self.core_data[i] = {
                 "years": 0, "lol_hours": 0.0, "loee": 0.0, "cost": 0.0, "events": 0,
                 "history": {"y": [], "lole": [], "lolp": [], "loee": [], "cost": []}
             }
+
+        self.global_history = {"y": [], "lole": [], "lolp": [], "loee": [], "cost": []}
 
         # Reset Total Metrics Trackers
         self.total_simulated_years = 0
@@ -426,6 +416,14 @@ class AdvancedSMCSGui:
                     else:
                         t_lole = t_lolp = t_loee = t_cost = 0.0
 
+                    # Save into global history for tracking total convergence
+                    self.global_history["y"].append(ty)
+                    self.global_history["lole"].append(t_lole)
+                    self.global_history["lolp"].append(t_lolp)
+                    self.global_history["loee"].append(t_loee)
+                    self.global_history["cost"].append(t_cost)
+
+                    # Update Numbers on Dashboard
                     self.vars["y"].set(f"{ty:,}")
                     self.vars["lole"].set(f"{t_lole:.4f}")
                     self.vars["lolp"].set(f"{t_lolp:.6f}")
@@ -469,16 +467,14 @@ class AdvancedSMCSGui:
                                 "num_core": self.target_workers,
                                 "years": ty,
                                 "batch_10": self.var_batch.get(),
-                                "LOLP": round(t_lolp, 6),
-                                "LOLD": round(t_lold, 4),
-                                "LOLE": round(t_lole, 4),
-                                "LOLF": round(t_lolf, 4),
-                                "LOEE": round(t_loee, 4),
-                                "cost": round(t_cost, 4),
+                                "LOLP": t_lolp,
+                                "LOLD": t_lold,
+                                "LOLE": t_lole,
+                                "LOLF": t_lolf,
+                                "LOEE": t_loee,
+                                "cost": t_cost,
                                 "sim_time": final_sim_time
                             }])
-
-
                             export_data.to_csv(file_path, mode='a', header=not file_exists, index=False)
                             print(f"Results exported successfully to {file_path}")
                         except Exception as e:
@@ -499,18 +495,23 @@ class AdvancedSMCSGui:
 
         # Batch UI Graph Draw
         if graph_needs_update:
-            for i, ax in enumerate(self.axes):
+            # 1. Plot Individual Core Lines
+            for i in range(self.target_workers):
                 if i in self.core_data:
                     hist = self.core_data[i]["history"]
                     if hist["y"]:
                         self.lines[i].set_data(hist["y"], hist[self.current_metric])
 
-                        # Set dynamic horizontal red line to the very last value
-                        latest_val = hist[self.current_metric][-1]
-                        self.hlines[i].set_ydata([latest_val, latest_val])
+            # 2. Plot Global Total Line
+            if self.global_history["y"]:
+                self.line_total.set_data(self.global_history["y"], self.global_history[self.current_metric])
 
-                        ax.relim()
-                        ax.autoscale_view()
+                # 3. Set horizontal red line to the exact current global average
+                latest_val = self.global_history[self.current_metric][-1]
+                self.hline_total.set_ydata([latest_val, latest_val])
+
+            self.ax.relim()
+            self.ax.autoscale_view()
             self.canvas.draw()
 
         if self.is_simulating:
